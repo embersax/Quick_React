@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import 'rbx/index.css';
 import { Button, Container, Title } from 'rbx';
-
+import firebase from 'firebase/app';
+import 'firebase/database';
 const days = ['M', 'Tu', 'W', 'Th', 'F'];
 const Banner = ({ title }) => (
     <Title>{ title }</Title>
 );
+
 const buttonColor = selected => (
     selected ? 'success' : null
 );
@@ -69,6 +71,7 @@ const courseConflict = (course1, course2) => (
 const hasConflict = (course, selected) => (
     selected.some(selection => courseConflict(course, selection))
 );
+
 const meetsPat = /^ *((?:M|Tu|W|Th|F)+) +(\d\d?):(\d\d) *[ -] *(\d\d?):(\d\d) *$/;
 const addCourseTimes = course => ({
   ...course,
@@ -76,9 +79,10 @@ const addCourseTimes = course => ({
 });
 
 const addScheduleTimes = schedule => ({
-  title: schedule.title,
-  courses: schedule.courses.map(addCourseTimes)
+    title: schedule.title,
+    courses: Object.values(schedule.courses).map(addCourseTimes)
 });
+
 const timeParts = meets => {
   const [match, days, hh1, mm1, hh2, mm2] = meetsPat.exec(meets) || [];
   return !match ? {} : {
@@ -89,14 +93,29 @@ const timeParts = meets => {
     }
   };
 };
+const saveCourse = (course, meets) => {
+    db.child('courses').child(course.id).update({meets})
+        .catch(error => alert(error));
+};
+
+const moveCourse = course => {
+    const meets = prompt('Enter new meeting data, in this format:', course.meets);
+    if (!meets) return;
+    const {days} = timeParts(meets);
+    if (days) saveCourse(course, meets);
+    else moveCourse(course);
+};
 const Course = ({ course, state }) => (
     <Button color={ buttonColor(state.selected.includes(course)) }
             onClick={ () => state.toggle(course) }
+            onDoubleClick={ () => moveCourse(course) }
             disabled={ hasConflict(course, state.selected) }
     >
-      { getCourseTerm(course) } CS { getCourseNumber(course) }: { course.title }
+        { getCourseTerm(course) } CS { getCourseNumber(course) }: { course.title }
     </Button>
 );
+
+
 const useSelection = () => {
   const [selected, setSelected] = useState([]);
   const toggle = (x) => {
@@ -104,26 +123,34 @@ const useSelection = () => {
   };
   return [ selected, toggle ];
 };
+const firebaseConfig = {
+    apiKey: "AIzaSyCnY17zOhYbZbOHozRUPfnV4eBozRnGioA",
+    authDomain: "react-394.firebaseapp.com",
+    databaseURL: "https://react-394.firebaseio.com",
+    projectId: "react-394",
+    storageBucket: "react-394.appspot.com",
+    messagingSenderId: "126845381084",
+    appId: "1:126845381084:web:4702672639f8193b408719"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref();
 const App = () => {
-  const [schedule, setSchedule] = useState({ title: '', courses: [] });
-  const url = 'https://courses.cs.northwestern.edu/394/data/cs-courses.php';
+    const [schedule, setSchedule] = useState({ title: '', courses: [] });
 
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      const response = await fetch(url);
-      if (!response.ok) throw response;
-      const json = await response.json();
-      setSchedule(addScheduleTimes(json));
-    }
-    fetchSchedule();
-  }, [])
+    useEffect(() => {
+        const handleData = snap => {
+            if (snap.val()) setSchedule(addScheduleTimes(snap.val()));
+        }
+        db.on('value', handleData, error => alert(error));
+        return () => { db.off('value', handleData); };
+    }, []);
 
-  return (
-      <Container>
-        <Banner title={ schedule.title } />
-        <CourseList courses={ schedule.courses } />
-      </Container>
-  );
+    return (
+        <Container>
+            <Banner title={ schedule.title } />
+            <CourseList courses={ schedule.courses } />
+        </Container>
+    );
 };
 
 export default App;
