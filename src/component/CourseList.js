@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "rbx";
 import { terms } from "./Course/times";
 import { buttonColor } from "./Course/Course";
-import { getCourseTerm, getCourseNumber } from "./Course/times";
+import { getCourseTerm } from "./Course/times";
 import Course from "./Course/Course";
 
 // const days = ['M', 'Tu', 'W', 'Th', 'F'];
