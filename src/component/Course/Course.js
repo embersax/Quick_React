@@ -21,8 +21,8 @@ export const buttonColor = selected => (
 )
 
 const Course = ({ course, state, user }) => (
-    <Button data-cy="course"
-
+    <Button
+        data-cy="course"
         color={buttonColor(state.selected.includes(course))}
         onClick={() => state.toggle(course)}
         onDoubleClick={user ? () => moveCourse(course) : null}

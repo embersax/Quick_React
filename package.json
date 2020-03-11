@@ -18,7 +18,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "cypress:ci": "cypress run --config video=false",
+    "test:ci": "react-scripts test --watchAll=false && start-server-and-test start http://localhost:3000 cypress:ci"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -38,7 +40,8 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
   "devDependencies": {
-    "cypress": "^4.1.0"
+    "cypress": "^4.1.0",
+    "start-server-and-test": "^1.10.9"
   },
   "repository": {
     "type": "git",
