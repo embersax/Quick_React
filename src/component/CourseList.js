@@ -1,8 +1,8 @@
-import React, {useState} from "react";
-import {Button} from "rbx";
-import {terms} from "./Course/times";
-import {buttonColor} from "./Course/Course";
-import {getCourseTerm,getCourseNumber} from "./Course/times";
+import React, { useState } from "react";
+import { Button } from "rbx";
+import { terms } from "./Course/times";
+import { buttonColor } from "./Course/Course";
+import { getCourseTerm, getCourseNumber } from "./Course/times";
 import Course from "./Course/Course";
 
 // const days = ['M', 'Tu', 'W', 'Th', 'F'];
@@ -61,13 +61,14 @@ import Course from "./Course/Course";
 
 const TermSelector = ({ state }) => (
     <Button.Group hasAddons>
-        { Object.values(terms)
+        {Object.values(terms)
             .map(value =>
                 <Button key={value}
-                        color={ buttonColor(value === state.term) }
-                        onClick={ () => state.setTerm(value) }
+                    data-cy={value}
+                    color={buttonColor(value === state.term)}
+                    onClick={() => state.setTerm(value)}
                 >
-                    { value }
+                    {value}
                 </Button>
             )
         }
@@ -114,7 +115,7 @@ const useSelection = () => {
     const toggle = (x) => {
         setSelected(selected.includes(x) ? selected.filter(y => y !== x) : [x].concat(selected))
     };
-    return [ selected, toggle ];
+    return [selected, toggle];
 };
 
 
@@ -129,12 +130,13 @@ const CourseList = ({ courses, user }) => {
 
     return (
         <React.Fragment>
-            <TermSelector state={ { term, setTerm } } />
+            <TermSelector state={{ term, setTerm }} />
             <Button.Group>
-                { termCourses.map(course =>
-                    <Course key={ course.id } course={ course }
-                            state={ { selected, toggle } }
-                            user={ user } />) }
+                {termCourses.map(course =>
+                    <Course key={course.id} course={course}
+
+                        state={{ selected, toggle }}
+                        user={user} />)}
             </Button.Group>
         </React.Fragment>
     );
