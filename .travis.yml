@@ -12,6 +12,5 @@ cache:
     # folder with Cypress binary
     - ~/.cache
 script:
-  - yarn install
   - npm run test:ci
   - npm run build
